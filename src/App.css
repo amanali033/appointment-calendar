@@ -129,6 +129,6 @@ table.fc-scrollgrid.fc-scrollgrid-liquid {
   border-radius: 0px; /* Rounded corners */
   font-weight: bold;
   padding: 10px;
-  width: 222.5px !important;
+  /* width: 222.5px !important; */
   margin-left: -2px;
 }

@@ -151,7 +151,8 @@ export default function DashboardLayout({ children }) {
             onClick={open ? handleDrawerClose : handleDrawerOpen}
             edge="start"
             sx={{
-              backgroundColor: "#F4F4F5",
+              // backgroundColor: "#F4F4F5",
+              // color:"#F4F4F5",
               fontSize: "1px",
               marginRight: 2,
               marginLeft: 0,

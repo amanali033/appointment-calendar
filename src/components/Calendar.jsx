@@ -19,6 +19,7 @@ import dayjs from "dayjs";
 import { createAPIEndPointAuth } from "../config/api/apiAuth";
 import { useLocation } from "../contexts/LocationContext";
 import { createAPIEndPoint } from "../config/api/api";
+import moment from "moment";
 
 const Calendar = () => {
   const { selectedLocation } = useLocation();
@@ -26,11 +27,25 @@ const Calendar = () => {
   const calendarRef = useRef(null);
 
   const [showEventForm, setShowEventForm] = useState(false);
+  const [editingEventId, setEditingEventId] = useState(null);
   const [eventData, setEventData] = useState({
     title: "",
     date: dayjs(),
     roomId: "",
   });
+  console.log(" Calendar ~ eventData:", eventData)
+
+  // Handle event selection for editing
+  const handleEventClick = (info) => {
+    console.log(" handleEvessntClick ~ info:", info.event)
+    setEditingEventId(info.event.id); // Track which event is being edited
+    setEventData({
+      title: info.event.title,
+      date: dayjs(info.event.start),
+      roomId: info.event.extendedProps.resourceId,
+    });
+    setShowEventForm(true);
+  };
 
   const [events, setEvents] = useState([
     {
@@ -88,21 +103,39 @@ const Calendar = () => {
     setShowEventForm(true);
   };
 
+  // Add or update event
   const handleAddEvent = () => {
     if (eventData.title.trim() && eventData.roomId) {
-      setEvents([
-        ...events,
-        {
-          id: events.length + 1,
-          title: eventData.title,
-          start: eventData.date.format("YYYY-MM-DDTHH:mm:ss"),
-          resourceId: eventData.roomId,
-        },
-      ]);
+      if (editingEventId) {
+        // Update existing event
+        setEvents((prevEvents) =>
+          prevEvents.map((event) =>
+            event.id === editingEventId
+              ? {
+                  ...event,
+                  title: eventData.title,
+                  start: eventData.date.format("YYYY-MM-DDTHH:mm:ss"),
+                  resourceId: eventData.roomId,
+                }
+              : event
+          )
+        );
+      } else {
+        // Add new event
+        setEvents([
+          ...events,
+          {
+            id: events.length + 1,
+            title: eventData.title,
+            start: eventData.date.format("YYYY-MM-DDTHH:mm:ss"),
+            resourceId: eventData.roomId,
+          },
+        ]);
+      }
 
-      // Reset event data, search term, and close form
+      // Reset form
       setEventData({ title: "", date: dayjs(), roomId: "" });
-      setSearchTerm(""); // Reset the search term
+      setEditingEventId(null);
       setShowEventForm(false);
     }
   };
@@ -225,6 +258,9 @@ const Calendar = () => {
             : null,
           resourceId: roomId,
           location_name: appointment?.location_name || "Unnamed Appointment",
+          comments: appointment?.comments || "Unnamed Appointment",
+          status: appointment?.status || "N/A",
+          createdAt: appointment?.created_at || "N/A",
         }));
       });
       console.log("Formatted Events:", formattedEvents);
@@ -236,22 +272,34 @@ const Calendar = () => {
   };
 
   const renderEventContent = (eventInfo) => {
+    console.log(" renderEventContent ~ eventInfo:", eventInfo);
     console.log("Event Info:", eventInfo.event.extendedProps); // ✅ Debugging log
 
     const { event } = eventInfo;
     const { timeText } = eventInfo;
-    const { location, status, details, comments, createdAt } =
+    const { location_name, status, details, comments, createdAt } =
       event.extendedProps || {};
 
     return (
-      <div style={{ padding: "4px", fontSize: "12px", borderRadius: "4px" }}>
-        <strong>{timeText}</strong> <br />
-        <strong>{event.title}</strong> <br />
-        {location || "Unknown"} <br />
-        {createdAt || "N/A"} <br />
-        {status || "Pending"} <br />
-        {details || "No details"} <br />
-        {comments || "No comments"}
+      <div className="p-2  rounded-md text-sm">
+        <div className="flex justify-between items-center">
+          <span className="text-white font-semibold">{event.title}</span>
+          <span className="text-xs text-white">{timeText}</span>
+        </div>
+        <p className="text-xs text-white mt-1">{location_name || "Unknown"}</p>
+        <p className="text-xs text-white">
+          {createdAt ? moment(createdAt).format("MM/DD/YYYY") : "N/A"}
+        </p>
+        <p className="text-xs text-white">
+          <span className="font-semibold text-white capitalize">
+            {status || "Pending"}
+          </span>
+        </p>
+        {comments && (
+          <p className="text-xs text-white italic border-t mt-2 pt-1">
+            {comments}
+          </p>
+        )}
       </div>
     );
   };
@@ -294,6 +342,7 @@ const Calendar = () => {
           <div style={{}}>
             <FullCalendar
               ref={calendarRef}
+              eventClick={handleEventClick} // Opens the event in the form when clicked
               plugins={[
                 timeGridPlugin,
                 resourceTimeGridPlugin,

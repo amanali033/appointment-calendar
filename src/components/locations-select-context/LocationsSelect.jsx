@@ -51,8 +51,10 @@ const LocationsSelect = () => {
       sx={{
         minWidth: "155px",
         border: "none",
-        fontSize: 15,
+        fontSize: 14,
+        fontWeight: "500",
         outline: "none",
+        color: "#7a7a7a",
         "& fieldset": { border: "none" },
         "&:focus, &:active": {
           outline: "none",

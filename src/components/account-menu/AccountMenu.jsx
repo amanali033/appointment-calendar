@@ -46,7 +46,16 @@ export default function AccountMenu() {
             aria-haspopup="true"
             aria-expanded={open ? "true" : undefined}
           >
-            <Avatar sx={{ width: 32, height: 32 }}>
+            <Avatar
+              sx={{
+                width: 32,
+                height: 32,
+                fontSize: 15,
+                fontWeight: "bold",
+                color: "#7b7b7b",
+                backgroundColor: "#F1F1F1",
+              }}
+            >
               {userData && userData.first_name
                 ? userData.first_name.charAt(0)
                 : ""}
