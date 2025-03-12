@@ -1,0 +1,80 @@
+Data Grid
+
+
+        <Paper
+          sx={{
+            maxWidth: "100%",
+            display: "flex",
+            flexDirection: "column",
+            border: "1px solid rgb(228, 228, 231)", // Added border
+            boxShadow: "none", // Removed shadow
+          }}
+        >
+          {/* DataGrid Wrapper with scrollable tbody */}
+          <Box
+            sx={{
+              flexGrow: 1,
+              overflow: "auto",
+              maxWidth: "100%",
+              "&::-webkit-scrollbar": {
+                width: "8px", // Adjust scrollbar width
+                height: "8px", // Adjust horizontal scrollbar height
+              },
+              "&::-webkit-scrollbar-thumb": {
+                backgroundColor: "#A8E6CF", // Scroll thumb color
+                borderRadius: "10px", // Round edges for thumb
+                border: "3px solid #F7F7F8", // Adding border for a more polished look
+                "&:hover": {
+                  backgroundColor: "#A0D6C2", // Thumb hover color
+                },
+              },
+              "&::-webkit-scrollbar-track": {
+                backgroundColor: "#E4E4E7", // Track color
+                borderRadius: "10px", // Round edges for track
+              },
+            }}
+          >
+            <DataGrid
+              rows={rows}
+              columns={columns.map((col) => ({
+                ...col,
+                flex: 1,
+                minWidth: 0,
+                border: 0,
+                sortable: false, // Removes sort arrows
+                filterable: false, // Removes filter icon
+              }))}
+              initialState={{ pagination: { paginationModel } }}
+              pageSizeOptions={[10, 20]}
+              disableColumnFilter // Removes column filter options
+              disableColumnSelector // Removes column visibility selector
+              disableDensitySelector // Removes density selector
+              sx={{
+                backgroundColor: "#F7F7F8",
+                border: "1px solid rgb(228, 228, 231)", // Added border for DataGrid
+                width: "100%", // Ensure table takes full width
+                overflow: "auto", // Enable scroll for both x and y axes
+                "& .MuiDataGrid-columnHeaders": {
+                  position: "sticky",
+                  top: 0,
+                  backgroundColor: "#F7F7F8", // Transparent background for column headers
+                  zIndex: 1,
+                },
+                "& .MuiDataGrid-columnHeaderTitle": {
+                  "&:hover": {
+                    backgroundColor: "#F7F7F8", // Removes hover effect on title
+                  },
+                },
+                "& .MuiDataGrid-cell": {
+                  backgroundColor: "#F7F7F8", // Transparent background for body cells
+                },
+                "& .MuiDataGrid-row": {
+                  backgroundColor: "#F7F7F8", // Transparent background for table rows
+                  "&:hover": {
+                    backgroundColor: "#F7F7F8", // Transparent hover effect for rows
+                  },
+                },
+              }}
+            />
+          </Box>
+        </Paper>

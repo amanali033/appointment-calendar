@@ -1,0 +1,117 @@
+.MuiDataGrid-menuIcon {
+  display: none !important;
+}
+
+.MuiDataGrid-virtualScrollerContent {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.MuiBackdrop-root {
+  backdrop-filter: blur(4px);
+}
+
+.MuiDataGrid-root {
+  border: none !important;
+}
+
+.text-primary {
+  color: #09090b;
+}
+
+.text-secondary {
+  color: #71717a;
+}
+
+.text-primary {
+  color: #1d8567;
+}
+
+.view_page strong {
+  font-weight: 600 !important;
+}
+
+button.fc-datePicker-button.fc-button.fc-button-primary {
+  display: none;
+}
+
+button.fc-today-button.fc-button {
+  text-transform: capitalize;
+  font-size: 0.85rem;
+  border-radius: 8px;
+}
+
+button.fc-resourceTimeGridDay-button.fc-button.fc-button-primary.fc-button-active {
+  text-transform: capitalize;
+  font-size: 0.86rem;
+  border-radius: 4px;
+  background-color: #71717a !important;
+  border: none !important;
+}
+
+.fc-button-group button,
+button.fc-today-button.fc-button.fc-button-primary {
+  margin-right: 8px !important;
+  font-size: 0.86rem !important;
+  border-radius: 4px !important;
+  padding: 5px 7px !important;
+  background-color: #71717a !important;
+  border: none !important;
+}
+
+table.fc-scrollgrid.fc-scrollgrid-liquid {
+  width: 5000px;
+  overflow-x: auto;
+  /* max-width: 150%; */
+}
+
+.fc-scrollgrid-sync-inner {
+  width: 222.5px !important;
+}
+
+.fc-resourceTimeGridDay-view.fc-view.fc-timegrid {
+  overflow: auto;
+}
+
+.fc-view-harness.fc-view-harness-active {
+  height: calc(100vh - 75px) !important;
+}
+
+.fc-scrollgrid-sync-inner,
+.fc-timegrid-slot-label-cushion.fc-scrollgrid-shrink-cushion {
+  padding: 6px;
+  font-weight: 400;
+  font-size: 0.875rem;
+  line-height: 1.43;
+  text-align: center;
+  width: 100%;
+  display: table-cell;
+  padding: 16px !important;
+  font-weight: 500;
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  color: #71717a;
+}
+
+.fc-timegrid-slot-label-cushion.fc-scrollgrid-shrink-cushion {
+  padding: 6px;
+}
+
+/* table {
+  background-color: #fafafa;
+} */
+
+/* .fc-scrollgrid-sync-inner,
+.fc-timegrid-slot-label-cushion.fc-scrollgrid-shrink-cushion {
+  display: block;
+} */
+
+.fc-button.fc-button-primary {
+  background-color: #71717a;
+}
+
+.MuiInputBase-root.MuiOutlinedInput-root.MuiInputBase-colorPrimary.MuiInputBase-formControl.MuiInputBase-sizeSmall.MuiInputBase-adornedEnd.css-bgfn90-MuiInputBase-root-MuiOutlinedInput-root {
+  border-radius: 4px;
+}
