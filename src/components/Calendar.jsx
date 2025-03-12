@@ -17,8 +17,12 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import { createAPIEndPointAuth } from "../config/api/apiAuth";
+import { useLocation } from "../contexts/LocationContext";
+import { createAPIEndPoint } from "../config/api/api";
 
 const Calendar = () => {
+  const { selectedLocation } = useLocation();
+  console.log(" Calendar ~ selectedLocation:", selectedLocation);
   const calendarRef = useRef(null);
 
   const [showEventForm, setShowEventForm] = useState(false);
@@ -33,21 +37,21 @@ const Calendar = () => {
       id: 1,
       title: "PA Lydia Cori",
       start: "2025-03-10T09:00:00",
-      resourceId: "PR01",
+      resourceId: "2",
       color: "#6c5ce7",
     },
     {
       id: 2,
       title: "PPO Destiny",
       start: "2025-03-10T09:30:00",
-      resourceId: "1 XRAYS",
+      resourceId: "1",
       color: "#e17055",
     },
     {
       id: 3,
       title: "PPO Rajputty",
       start: "2025-03-10T10:00:00",
-      resourceId: "PR02",
+      resourceId: "1",
       color: "#00b894",
     },
     {
@@ -57,7 +61,14 @@ const Calendar = () => {
       resourceId: "PR03",
       color: "#e84393",
     },
+    {
+      id: 5,
+      title: "Shahrukh Chaurdhary",
+      start: "2025-03-11T12:20:00",
+      resourceId: "1",
+    },
   ]);
+  console.log(" Calendar ~ events:", events);
 
   const [selectedDate, setSelectedDate] = useState(dayjs());
 
@@ -88,35 +99,38 @@ const Calendar = () => {
           resourceId: eventData.roomId,
         },
       ]);
-      setShowEventForm(false);
+
+      // Reset event data, search term, and close form
       setEventData({ title: "", date: dayjs(), roomId: "" });
+      setSearchTerm(""); // Reset the search term
+      setShowEventForm(false);
     }
   };
 
-  const resources = [
-    { id: "1 XRAYS", title: "1 XRAYS" },
-    { id: "PR01", title: "PR01" },
-    { id: "PR02", title: "PR02" },
-    { id: "PR03", title: "PR03" },
-    { id: "PR04", title: "PR04" },
-    { id: "PR05", title: "PR05" },
-    { id: "PR06", title: "PR06" },
-    { id: "PR07", title: "PR07" },
-    { id: "PR08", title: "PR08" },
-    { id: "PR09", title: "PR09" },
-    { id: "PR10", title: "PR10" },
-    { id: "PR11", title: "PR11" },
-    { id: "PR12", title: "PR12" },
-    { id: "PR13", title: "PR13" },
-    { id: "PR14", title: "PR14" },
-    { id: "PR15", title: "PR15" },
-    { id: "PR16", title: "PR16" },
-    { id: "PR17", title: "PR17" },
-    { id: "PR18", title: "PR18" },
-    { id: "PR19", title: "PR19" },
-    { id: "PR20", title: "PR20" },
-    { id: "PR21", title: "PR21" },
-  ];
+  // const resources = [
+  //   { id: "1 XRAYS", title: "1 XRAYS" },
+  //   { id: "PR01", title: "PR01" },
+  //   { id: "PR02", title: "PR02" },
+  //   { id: "PR03", title: "PR03" },
+  //   { id: "PR04", title: "PR04" },
+  //   { id: "PR05", title: "PR05" },
+  //   { id: "PR06", title: "PR06" },
+  //   { id: "PR07", title: "PR07" },
+  //   { id: "PR08", title: "PR08" },
+  //   { id: "PR09", title: "PR09" },
+  //   { id: "PR10", title: "PR10" },
+  //   { id: "PR11", title: "PR11" },
+  //   { id: "PR12", title: "PR12" },
+  //   { id: "PR13", title: "PR13" },
+  //   { id: "PR14", title: "PR14" },
+  //   { id: "PR15", title: "PR15" },
+  //   { id: "PR16", title: "PR16" },
+  //   { id: "PR17", title: "PR17" },
+  //   { id: "PR18", title: "PR18" },
+  //   { id: "PR19", title: "PR19" },
+  //   { id: "PR20", title: "PR20" },
+  //   { id: "PR21", title: "PR21" },
+  // ];
 
   const [patientsData, setPatientsData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -147,6 +161,105 @@ const Calendar = () => {
     fetchPatients();
   }, []);
 
+  const [resources, setResources] = useState([]);
+
+  const fetchLocationsRooms = async () => {
+    try {
+      const response = await createAPIEndPointAuth(
+        `locations/${selectedLocation?.id}/rooms`
+      ).fetchAll();
+
+      // Map API response to FullCalendar format
+      const formattedRooms = response.data.rooms.map((room) => ({
+        id: room.id, // Keep ID for event resource matching
+        title: room.room_name, // Display name in the calendar
+      }));
+
+      setResources(formattedRooms);
+    } catch (err) {
+      console.error("Error fetching rooms:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchLocationsRooms();
+  }, [selectedLocation]);
+
+  const fetchLAppointments = async () => {
+    try {
+      const response = await createAPIEndPoint(
+        `appointment/get_calendar/${selectedLocation?.id}`
+      ).fetchAll();
+
+      const calendarData = response?.data?.calendar;
+      // Extract and map rooms
+      // const formattedRooms = Object.keys(calendarData).map((roomId) => ({
+      //   id: roomId,
+      //   title: calendarData[roomId].room_name,
+      // }));
+      // setResources(formattedRooms);
+
+      // Extract and map appointments
+      Object.keys(calendarData).forEach((roomId) => {
+        console.log(`Room ID: ${roomId}`, calendarData[roomId]);
+        console.log(
+          `Appointments for Room ${roomId}:`,
+          calendarData[roomId]?.appointments
+        );
+      });
+
+      const formattedEvents = Object.keys(calendarData).flatMap((roomId) => {
+        const appointments = calendarData[roomId]?.appointments;
+        if (!Array.isArray(appointments)) {
+          console.warn(
+            `⚠️ Appointments for room ${roomId} is not an array!`,
+            appointments
+          );
+          return []; // Return empty array if invalid
+        }
+        return appointments.map((appointment) => ({
+          id: appointment?.appointment_id,
+          title: appointment?.patient_name || "Unnamed Appointment",
+          start: appointment?.created_at
+            ? dayjs(appointment.created_at).toISOString()
+            : null,
+          resourceId: roomId,
+          location_name: appointment?.location_name || "Unnamed Appointment",
+        }));
+      });
+      console.log("Formatted Events:", formattedEvents);
+
+      setEvents(formattedEvents);
+    } catch (err) {
+      console.error("Error fetching appointments:", err);
+    }
+  };
+
+  const renderEventContent = (eventInfo) => {
+    console.log("Event Info:", eventInfo.event.extendedProps); // ✅ Debugging log
+
+    const { event } = eventInfo;
+    const { timeText } = eventInfo;
+    const { location, status, details, comments, createdAt } =
+      event.extendedProps || {};
+
+    return (
+      <div style={{ padding: "4px", fontSize: "12px", borderRadius: "4px" }}>
+        <strong>{timeText}</strong> <br />
+        <strong>{event.title}</strong> <br />
+        {location || "Unknown"} <br />
+        {createdAt || "N/A"} <br />
+        {status || "Pending"} <br />
+        {details || "No details"} <br />
+        {comments || "No comments"}
+      </div>
+    );
+  };
+
+  useEffect(() => {
+    fetchLAppointments();
+  }, [selectedLocation]);
+
   // ✅ Fix: Resize FullCalendar when form opens/closes
   useEffect(() => {
     if (calendarRef.current) {
@@ -165,8 +278,12 @@ const Calendar = () => {
       .slice(0, searchTerm ? patientsData.length : 20); // Show only 20 initially
   }, [searchTerm, patientsData]);
 
+  const handleDatesSet = (info) => {
+    setSelectedDate(dayjs(info.start)); // Set to the first visible day
+  };
+
   return (
-    <div className="w-full  h-screen overflow-y-auto  p-4 flex">
+    <div className="w-full p-1 overflow-y-auto  flex">
       {/* FullCalendar Section */}
       <div
         className={`transition-all duration-500 ${
@@ -182,17 +299,20 @@ const Calendar = () => {
                 resourceTimeGridPlugin,
                 interactionPlugin,
               ]}
+              eventClassNames={() => ["custom-event"]}
               initialView="resourceTimeGridDay"
               allDaySlot={false}
-              slotMinTime="07:00:00"
-              slotMaxTime="19:00:00"
+              slotMinTime="12:00:00" // Start at 12 PM
+              slotMaxTime="23:00:00" // Ensure full visibility of 11 PM slot
               slotDuration="00:10:00" // 10-minute steps
               snapDuration="00:10:00"
               editable={true}
               eventResizableFromStart={true}
               eventDurationEditable={true}
-              events={events}
-              resources={resources}
+              // aspectRatio={1.5} // Adjusts height dynamically
+              // handleWindowResize={true} // Ensures it resizes
+              events={events} // ✅ Corrected
+              resources={resources} // ✅ Corrected
               dateClick={handleDateClick}
               slotLabelFormat={[
                 {
@@ -210,6 +330,8 @@ const Calendar = () => {
                 end: "resourceTimeGridDay",
               }}
               titleFormat={() => ""}
+              datesSet={handleDatesSet} // 🔥 Update selectedDate when date changes
+              eventContent={renderEventContent} // ✅ Custom Event Renderer
             />
           </div>
         </div>
@@ -234,20 +356,23 @@ const Calendar = () => {
 
       {/* Sidebar Event Form */}
       <div
-        className={`transition-all duration-500 transform min-h-full ml-1.5 absolute top-0 right-0 ${
+        className={`transition-all duration-500 transform  ml-1.5 absolute top-0 right-0 mt-[65px] ${
           showEventForm
-            ? "translate-x-0 w-[40%] opacity-100"
-            : "translate-x-full w-0 opacity-0"
+            ? "translate-x-0 w-[40%] opacity-100 block z-[99]"
+            : "translate-x-full w-0 opacity-0 hidden"
         } bg-[#FAFAFA] border-l border-[#FAFAFA] shadow-md overflow-hidden`}
       >
         {showEventForm && (
-          <div className="p-4 flex flex-col h-full">
-            <h3 className="text-lg font-semibold mb-2">Add Appointment</h3>
+          <div className="p-4 flex flex-col h-[calc(100vh-66px)]">
+            <h3 className="text-2xl text-primary font-semibold mb-4">
+              Create Appointment
+            </h3>
 
             {/* Patient Selection */}
             <Autocomplete
               fullWidth
               size="small"
+              value={eventData.title || null}
               onInputChange={(event, newInputValue) =>
                 setSearchTerm(newInputValue)
               }
@@ -293,17 +418,25 @@ const Calendar = () => {
             <div className="flex-grow"></div>
 
             {/* Save and Cancel Buttons */}
-            <div className="flex gap-2 mt-4 justify-end">
+            <div className="flex gap-2 mt-4 justify-start">
               <Button
                 variant="contained"
-                className="flex-1"
+                sx={{
+                  textTransform: "capitalize",
+                  minWidth: "120px",
+                }}
+                // className="flex-1"
                 onClick={handleAddEvent}
               >
                 Save
               </Button>
               <Button
                 variant="outlined"
-                className="flex-1"
+                sx={{
+                  textTransform: "capitalize",
+                  minWidth: "120px",
+                }}
+                // className="flex-1"
                 onClick={() => setShowEventForm(false)}
               >
                 Cancel

@@ -22,10 +22,13 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Typography,
 } from "@mui/material";
 import { Link, useLocation } from "react-router-dom";
 import AccountMenu from "../account-menu/AccountMenu";
 import AppMenu from "../app-menu/AppMenu";
+import MainHeading from "../main-heading";
+import LocationsSelect from "../locations-select-context/LocationsSelect";
 
 const drawerWidth = 255;
 
@@ -170,6 +173,9 @@ export default function DashboardLayout({ children }) {
           <Box mr="auto">
             <AppMenu />
           </Box>
+          <Box >
+            <LocationsSelect />
+          </Box>
           <AccountMenu />
         </Toolbar>
       </AppBar>
@@ -206,7 +212,14 @@ export default function DashboardLayout({ children }) {
               alignItems: "center",
             }}
           >
-            <CalendarMonthRoundedIcon sx={{ width: "40px" }} color="primary" />
+            {/* <CalendarMonthRoundedIcon sx={{ width: "40px" }} color="primary" /> */}
+            <Typography
+              variant="h2"
+              color="secondary.main"
+              sx={{ fontSize: "18px", fontWeight: "bold" }}
+            >
+              Appointments{" "}
+            </Typography>
           </div>
           {/* <img
             src={open ? logo : smallLogo}
@@ -269,7 +282,7 @@ export default function DashboardLayout({ children }) {
       </Drawer>
       <Main
         open={open}
-        className="flex flex-col min-h-screen mx-auto p-[24px]  overflow-x-auto"
+        className="flex flex-col min-h-screen mx-auto p-3  overflow-x-auto"
       >
         <DrawerHeader />
         <MemoizedChildren>{children}</MemoizedChildren>{" "}

@@ -60,7 +60,8 @@ button.fc-today-button.fc-button.fc-button-primary {
 }
 
 table.fc-scrollgrid.fc-scrollgrid-liquid {
-  width: 5000px;
+  max-width: 5000px;
+  min-width: min-content;
   overflow-x: auto;
   /* max-width: 150%; */
 }
@@ -74,7 +75,8 @@ table.fc-scrollgrid.fc-scrollgrid-liquid {
 }
 
 .fc-view-harness.fc-view-harness-active {
-  height: calc(100vh - 75px) !important;
+  /* height: calc(100vh - 75px) !important; */
+  height: calc(100vh - 140px) !important;
 }
 
 .fc-scrollgrid-sync-inner,
@@ -114,4 +116,19 @@ table.fc-scrollgrid.fc-scrollgrid-liquid {
 
 .MuiInputBase-root.MuiOutlinedInput-root.MuiInputBase-colorPrimary.MuiInputBase-formControl.MuiInputBase-sizeSmall.MuiInputBase-adornedEnd.css-bgfn90-MuiInputBase-root-MuiOutlinedInput-root {
   border-radius: 4px;
+}
+
+.fc-license-message {
+  display: none;
+}
+
+.custom-event {
+  background-color: #61b099 !important; /* Custom background */
+  border: 1px solid #1d8567 !important; /* Border */
+  color: white !important; /* Text color */
+  border-radius: 0px; /* Rounded corners */
+  font-weight: bold;
+  padding: 10px;
+  width: 222.5px !important;
+  margin-left: -2px;
 }

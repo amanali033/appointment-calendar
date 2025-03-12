@@ -13,9 +13,55 @@ import NewAppointment from "./components/forms/new-appointment/NewAppointment";
 import Appointments from "./pages/appointments/Appointments";
 import AppointmentsView from "./pages/appointments/view/AppointmentsView";
 import Calendar from "./components/Calendar";
+import { LocationProvider } from "./contexts/LocationContext";
 
 function App() {
-  return <Calendar />;
+  return (
+    <UserProfileProvider>
+      <LocationProvider>
+        <Routes>
+          <Route
+            path="/"
+            element={<DashboardLayout Navigate={"Default Page"} />}
+          />
+          <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgetPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+
+          {/* Dashboard Layout Routes */}
+          <Route
+            path="/*"
+            element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <Routes>
+                    <Route path="/user-profile" element={<Profile />} />
+                    <Route
+                      path="/change-password"
+                      element={<ChangePassword />}
+                    />
+                    <Route path="/appointments" element={<Calendar />} />
+                    {/* <Route path="/appointments" element={<Appointments />} /> */}
+                    {/* <Route
+                    path="/appointments/details/:id"
+                    element={<AppointmentsView />}
+                    /> */}
+                    <Route
+                      path="/appointments/add-new-appointment"
+                      element={<NewAppointment />}
+                    />
+                  </Routes>
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ✅ Global NotFound route (outside DashboardLayout) */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </LocationProvider>
+    </UserProfileProvider>
+  );
 }
 
 export default App;
