@@ -68,8 +68,9 @@ const login = async (
   }
 };
 
-const verifyOtp = async (otp, tempToken, navigate) => {
+const verifyOtp = async (otp, tempToken, navigate, setCheck) => {
   try {
+    setCheck(true);
     const response = await createAPIEndPointAuth("verify_2fa").create({
       token: otp,
       temp_token: tempToken,
@@ -77,6 +78,7 @@ const verifyOtp = async (otp, tempToken, navigate) => {
     localStorage.setItem("access_token", response.data.token);
     toast.success(response?.data?.message || "OTP verified successfully!");
   } catch (error) {
+    setCheck(false);
     toast.error(error.response?.data?.error || "OTP verification failed.");
   }
 };
@@ -112,7 +114,6 @@ export default function Login() {
 
   const checkDashboard = async (profileData) => {
     try {
-      setCheck(true);
       const url = `dashboard/check`;
       const response = await createAPIEndPoint(url).create({
         profile: profileData.profile,
@@ -135,7 +136,7 @@ export default function Login() {
   const handleOtpSubmit = async () => {
     if (otp.length === 6) {
       try {
-        await verifyOtp(otp, tempToken, navigate).then(() => {
+        await verifyOtp(otp, tempToken, navigate, setCheck).then(() => {
           checkAuthProfile();
         });
       } catch (error) {
@@ -149,7 +150,7 @@ export default function Login() {
 
   useEffect(() => {
     if (otp.length === 6)
-      verifyOtp(otp, tempToken, navigate).then(() => {
+      verifyOtp(otp, tempToken, navigate, setCheck).then(() => {
         checkAuthProfile();
       });
   }, [otp]);

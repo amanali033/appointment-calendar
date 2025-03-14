@@ -38,7 +38,7 @@ export default function ForgetPassword() {
 
   const handleForgetPassword = async (values) => {
     try {
-      const data = JSON.stringify({ email: values.email });
+      const data = { email: values.email };
       const response = await createAPIEndPointAuth("forgot-password").create(
         data
       );

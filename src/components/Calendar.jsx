@@ -33,56 +33,21 @@ const Calendar = () => {
     date: dayjs(),
     roomId: "",
   });
-  console.log(" Calendar ~ eventData:", eventData)
+  console.log(" Calendar ~ eventData:", eventData);
 
   // Handle event selection for editing
   const handleEventClick = (info) => {
-    console.log(" handleEvessntClick ~ info:", info.event)
+    console.log(" handleEvessntClick ~ info:", info.event);
     setEditingEventId(info.event.id); // Track which event is being edited
     setEventData({
       title: info.event.title,
       date: dayjs(info.event.start),
-      roomId: info.event.extendedProps.resourceId,
+      roomId: info.event.resourceIds[0],
     });
     setShowEventForm(true);
   };
 
-  const [events, setEvents] = useState([
-    {
-      id: 1,
-      title: "PA Lydia Cori",
-      start: "2025-03-10T09:00:00",
-      resourceId: "2",
-      color: "#6c5ce7",
-    },
-    {
-      id: 2,
-      title: "PPO Destiny",
-      start: "2025-03-10T09:30:00",
-      resourceId: "1",
-      color: "#e17055",
-    },
-    {
-      id: 3,
-      title: "PPO Rajputty",
-      start: "2025-03-10T10:00:00",
-      resourceId: "1",
-      color: "#00b894",
-    },
-    {
-      id: 4,
-      title: "PPO ANA MARIA",
-      start: "2025-03-10T11:00:00",
-      resourceId: "PR03",
-      color: "#e84393",
-    },
-    {
-      id: 5,
-      title: "Shahrukh Chaurdhary",
-      start: "2025-03-11T12:20:00",
-      resourceId: "1",
-    },
-  ]);
+  const [events, setEvents] = useState([]);
   console.log(" Calendar ~ events:", events);
 
   const [selectedDate, setSelectedDate] = useState(dayjs());
@@ -140,32 +105,9 @@ const Calendar = () => {
     }
   };
 
-  // const resources = [
-  //   { id: "1 XRAYS", title: "1 XRAYS" },
-  //   { id: "PR01", title: "PR01" },
-  //   { id: "PR02", title: "PR02" },
-  //   { id: "PR03", title: "PR03" },
-  //   { id: "PR04", title: "PR04" },
-  //   { id: "PR05", title: "PR05" },
-  //   { id: "PR06", title: "PR06" },
-  //   { id: "PR07", title: "PR07" },
-  //   { id: "PR08", title: "PR08" },
-  //   { id: "PR09", title: "PR09" },
-  //   { id: "PR10", title: "PR10" },
-  //   { id: "PR11", title: "PR11" },
-  //   { id: "PR12", title: "PR12" },
-  //   { id: "PR13", title: "PR13" },
-  //   { id: "PR14", title: "PR14" },
-  //   { id: "PR15", title: "PR15" },
-  //   { id: "PR16", title: "PR16" },
-  //   { id: "PR17", title: "PR17" },
-  //   { id: "PR18", title: "PR18" },
-  //   { id: "PR19", title: "PR19" },
-  //   { id: "PR20", title: "PR20" },
-  //   { id: "PR21", title: "PR21" },
-  // ];
-
   const [patientsData, setPatientsData] = useState([]);
+  const [selectedPatient, setSelectedPatient] = useState(null);
+  console.log(" Calendar ~ selectedPatient:", selectedPatient);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -271,6 +213,32 @@ const Calendar = () => {
     }
   };
 
+  const [patientDetails, setPatientDetails] = useState({});
+  console.log(" Calendar ~ patientDetails:", patientDetails)
+  const [isPatientLoading, setIsPatientLoading] = useState(false);
+
+  const getPatientDetails = async () => {
+    try {
+      setIsPatientLoading(true);
+      const response = await createAPIEndPoint("patient").fetchById(
+        `/${selectedPatient.id}`
+      );
+      const patient = response.data;
+
+      setPatientDetails(patient);
+
+      setIsPatientLoading(false);
+    } catch (error) {
+      setIsPatientLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedPatient) {
+      getPatientDetails();
+    }
+  }, [selectedPatient]);
+
   const renderEventContent = (eventInfo) => {
     console.log(" renderEventContent ~ eventInfo:", eventInfo);
     console.log("Event Info:", eventInfo.event.extendedProps); // ✅ Debugging log
@@ -333,6 +301,7 @@ const Calendar = () => {
   return (
     <div className="w-full p-1 overflow-y-auto  flex">
       {/* FullCalendar Section */}
+
       <div
         className={`transition-all duration-500 ${
           showEventForm ? "w-[60%]" : "w-full"
@@ -430,6 +399,7 @@ const Calendar = () => {
                   (p) => p.name === newValue
                 );
                 if (selectedPatient) {
+                  setSelectedPatient(selectedPatient);
                   setEventData({
                     ...eventData,
                     title: selectedPatient.name,

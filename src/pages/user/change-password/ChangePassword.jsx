@@ -28,10 +28,10 @@ export default function ChangePassword() {
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
-      const data = JSON.stringify({
+      const data = {
         old_password: values.currentPassword,
         new_password: values.newPassword,
-      });
+      };
       await createAPIEndPointAuth(`user/change_password/`).update(userId, data);
 
       toast.success("Password updated successfully");
