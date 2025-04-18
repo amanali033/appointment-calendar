@@ -135,14 +135,18 @@ export default function DashboardLayout({ children }) {
       <AppBar
         position="fixed"
         open={open}
-        sx={{ boxShadow: "none", borderBottom: "1px solid #e4e4e7" }}
+        sx={{
+          boxShadow: "none",
+          borderBottom: "1px solid #e4e4e7",
+          backgroundColor: "#fff",
+        }}
       >
         <Toolbar
           sx={{
             width: isMobile ? "100%" : open ? "100%" : "calc(100% - 64px)",
             marginLeft: "auto",
             justifyContent: "space-between",
-            backgroundColor: "primary.white",
+            backgroundColor: "#fff",
           }}
         >
           <IconButton
@@ -151,8 +155,8 @@ export default function DashboardLayout({ children }) {
             onClick={open ? handleDrawerClose : handleDrawerOpen}
             edge="start"
             sx={{
-              // backgroundColor: "#F4F4F5",
-              // color:"#F4F4F5",
+              backgroundColor: "#F4F4F5",
+              color: "#F4F4F5",
               fontSize: "1px",
               marginRight: 2,
               marginLeft: 0,
@@ -162,19 +166,19 @@ export default function DashboardLayout({ children }) {
               },
             }}
           >
-            <MenuRoundedIcon sx={{ fontSize: "20px", color: "black" }} />
-            {/* {!open ? (
+            {/* <MenuRoundedIcon sx={{ fontSize: "20px", color: "black" }} /> */}
+            {!open ? (
               <ChevronRightRoundedIcon
-                sx={{ fontSize: "20px", color: "black" }}
+                sx={{ fontSize: "20px", color: "#707070" }}
               />
             ) : (
-              <MenuRoundedIcon sx={{ fontSize: "20px", color: "black" }} />
-            )} */}
+              <MenuRoundedIcon sx={{ fontSize: "20px", color: "#707070" }} />
+            )}
           </IconButton>{" "}
           <Box mr="auto">
             <AppMenu />
           </Box>
-          <Box >
+          <Box>
             <LocationsSelect />
           </Box>
           <AccountMenu />
@@ -211,16 +215,47 @@ export default function DashboardLayout({ children }) {
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
+              // width: "100%",
             }}
           >
-            {/* <CalendarMonthRoundedIcon sx={{ width: "40px" }} color="primary" /> */}
-            <Typography
-              variant="h2"
-              color="secondary.main"
-              sx={{ fontSize: "18px", fontWeight: "bold" }}
-            >
-              Appointments{" "}
-            </Typography>
+            {open ? (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                {" "}
+                <CalendarMonthRoundedIcon
+                  sx={{ width: "40px" }}
+                  color="primary"
+                />
+                <Typography
+                  variant="h2"
+                  color="secondary.main"
+                  sx={{ fontSize: "18px", fontWeight: "bold" }}
+                >
+                  Appointments{" "}
+                </Typography>
+              </div>
+            ) : (
+              <>
+                {" "}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <CalendarMonthRoundedIcon
+                    sx={{ width: "40px" }}
+                    color="primary"
+                  />
+                </div>
+              </>
+            )}
           </div>
           {/* <img
             src={open ? logo : smallLogo}
@@ -234,52 +269,108 @@ export default function DashboardLayout({ children }) {
           /> */}
         </DrawerHeader>
         <Divider />
-        <List sx={{ p: open ? "1rem" : ".75rem" }}>
-          {menuItems.map((item, index) => {
-            const isActive = location.pathname.includes(item.link);
-
-            return (
-              <ListItem key={index} disablePadding>
-                <ListItemButton
-                  component={Link}
-                  to={item.link}
-                  sx={{
-                    backgroundColor: isActive ? "#F4F4F5" : "transparent", // Active background
-                    gap: ".75rem",
-                    padding: open ? "7.5px 16px" : "9px",
-
-                    borderRadius: ".5rem",
-                    "&:hover": { backgroundColor: "#F4F4F5" },
-                  }}
-                >
-                  <ListItemIcon
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            height: "100%",
+            justifyContent: "space-between",
+            p: open ? "1rem" : ".75rem",
+          }}
+        >
+          {/* Top Menu Items */}
+          <List>
+            {menuItems.map((item, index) => {
+              const isActive = location.pathname.includes(item.link);
+              return (
+                <ListItem key={index} disablePadding>
+                  <ListItemButton
+                    component={Link}
+                    to={item.link}
                     sx={{
-                      color: isActive ? "secondary.main" : "body2",
-                      minWidth: "fit-content",
-                      "& svg": {
-                        fontSize: "20px", // Ensures SVG icon is 200px
-                      },
+                      backgroundColor: isActive ? "#F4F4F5" : "transparent",
+                      gap: ".75rem",
+                      padding: open ? "7.5px 16px" : "9px",
+                      borderRadius: ".5rem",
+                      "&:hover": { backgroundColor: "#F4F4F5" },
                     }}
                   >
-                    {item.icon}
-                  </ListItemIcon>
-                  {open && (
-                    <ListItemText
-                      primary={item.text}
-                      primaryTypographyProps={{
-                        sx: {
-                          fontSize: "14px",
-                          fontWeight: "500",
-                          color: isActive ? "secondary.main" : "body2",
+                    <ListItemIcon
+                      sx={{
+                        color: isActive ? "secondary.main" : "body2",
+                        minWidth: "fit-content",
+                        "& svg": {
+                          fontSize: "20px",
                         },
                       }}
-                    />
-                  )}
-                </ListItemButton>
-              </ListItem>
-            );
-          })}
-        </List>
+                    >
+                      {item.icon}
+                    </ListItemIcon>
+                    {open && (
+                      <ListItemText
+                        primary={item.text}
+                        primaryTypographyProps={{
+                          sx: {
+                            fontSize: "14px",
+                            fontWeight: "500",
+                            color: isActive ? "secondary.main" : "body2",
+                          },
+                        }}
+                      />
+                    )}
+                  </ListItemButton>
+                </ListItem>
+              );
+            })}
+          </List>
+
+          {/* Settings Item at Bottom */}
+          <List>
+            <ListItem disablePadding>
+              <ListItemButton
+                component={Link}
+                to="/settings"
+                sx={{
+                  gap: ".75rem",
+                  padding: open ? "7.5px 16px" : "9px",
+                  backgroundColor: location.pathname === "/settings" ? "#F4F4F5" : "transparent",
+                  borderRadius: ".5rem",
+                  "&:hover": { backgroundColor: "#F4F4F5" },
+                }}
+              >
+                <ListItemIcon
+                  sx={{
+                    color:
+                      location.pathname === "/settings"
+                        ? "secondary.main"
+                        : "body2",
+                    minWidth: "fit-content",
+                    "& svg": {
+                      fontSize: "20px",
+                    },
+                  }}
+                >
+                  <LockIcon />
+                </ListItemIcon>
+                {open && (
+                  <ListItemText
+                    primary="Settings"
+                    primaryTypographyProps={{
+                      sx: {
+                        fontSize: "14px",
+                        fontWeight: "500",
+                        color:
+                          location.pathname === "/settings"
+                            ? "secondary.main"
+                            : "body2",
+                      },
+                    }}
+                  />
+                )}
+              </ListItemButton>
+            </ListItem>
+          </List>
+        </Box>
       </Drawer>
       <Main
         open={open}

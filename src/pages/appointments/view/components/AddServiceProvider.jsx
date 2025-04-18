@@ -16,8 +16,12 @@ import CloseIcon from "@mui/icons-material/Close";
 import toast from "react-hot-toast";
 import { createAPIEndPointAuth } from "../../../../config/api/apiAuth";
 import { createAPIEndPoint } from "../../../../config/api/api";
+import { getUserData } from "../../../../utils";
 
 const AddServiceProvider = ({ open, handleClose, pre_auth_id, fetchAgain }) => {
+  const userData = getUserData();
+  const userId = userData?.id ?? null;
+  const clinic_id = userData?.clinic_id ?? null;
   const [provider, setProvider] = useState([]);
   const [selectedMember, setSelectedMember] = useState("");
   const [loading, setLoading] = useState(false);
@@ -26,7 +30,7 @@ const AddServiceProvider = ({ open, handleClose, pre_auth_id, fetchAgain }) => {
   const fetchProviders = async () => {
     try {
       const response = await createAPIEndPointAuth(
-        "clinic_providers"
+        `clinic_providers/get_all/${clinic_id}`
       ).fetchAll(true);
       setProvider(response.data.providers);
     } catch (err) {

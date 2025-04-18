@@ -20,19 +20,40 @@ import { createAPIEndPointAuth } from "../config/api/apiAuth";
 import { useLocation } from "../contexts/LocationContext";
 import { createAPIEndPoint } from "../config/api/api";
 import moment from "moment";
+import { getUserData } from "../utils";
+import { useProviders } from "../hooks/useProviders";
 
 const Calendar = () => {
+  const userData = getUserData();
+  const clinic_id = userData?.clinic_id ?? null;
   const { selectedLocation } = useLocation();
   console.log(" Calendar ~ selectedLocation:", selectedLocation);
   const calendarRef = useRef(null);
+  const [searchProviderTerm, setSearchProviderTerm] = useState("");
+  const { providers, loading: loadingProviders } = useProviders();
 
+  // Memoized filtered suggestions for providers
+  const filteredProviders = useMemo(() => {
+    return providers
+      .filter((prov) =>
+        prov.provider_name
+          ?.toLowerCase()
+          ?.includes(searchProviderTerm?.toLowerCase())
+      )
+      .slice(0, searchProviderTerm ? providers.length : 20);
+  }, [searchProviderTerm, providers]);
   const [showEventForm, setShowEventForm] = useState(false);
   const [editingEventId, setEditingEventId] = useState(null);
   const [eventData, setEventData] = useState({
     title: "",
     date: dayjs(),
     roomId: "",
+    providerId: null,
+    dob: null,
+    phone: "",
+    details: "",
   });
+
   console.log(" Calendar ~ eventData:", eventData);
 
   // Handle event selection for editing
@@ -55,7 +76,7 @@ const Calendar = () => {
   const handleDateChange = (newDate) => {
     setSelectedDate(newDate);
     if (calendarRef.current) {
-      calendarRef.current.getApi().gotoDate(newDate.format("YYYY-MM-DD"));
+      calendarRef?.current?.getApi().gotoDate(newDate.format("YYYY-MM-DD"));
     }
   };
 
@@ -69,39 +90,53 @@ const Calendar = () => {
   };
 
   // Add or update event
-  const handleAddEvent = () => {
-    if (eventData.title.trim() && eventData.roomId) {
-      if (editingEventId) {
-        // Update existing event
-        setEvents((prevEvents) =>
-          prevEvents.map((event) =>
-            event.id === editingEventId
-              ? {
-                  ...event,
-                  title: eventData.title,
-                  start: eventData.date.format("YYYY-MM-DDTHH:mm:ss"),
-                  resourceId: eventData.roomId,
-                }
-              : event
-          )
+  const handleAddEvent = async () => {
+    if (selectedPatient && eventData.date && eventData.roomId) {
+      const payload = {
+        phone: selectedPatient.phone,
+        name: selectedPatient.name,
+        date_of_birth: selectedPatient.date_of_birth ?? "2000-01-01", // fallback if missing
+        location_id: selectedLocation?.id,
+        room_id: eventData.roomId,
+        email: selectedPatient.email ?? "test@example.com", // fallback if missing
+        insurance_provider: selectedPatient.insurance_provider ?? "N/A",
+        insurance_number: selectedPatient.insurance_number ?? "N/A",
+        details: eventData.details || "N/A",
+        clinic_id: clinic_id,
+        user_id: userData?.id,
+      };
+
+      try {
+        const response = await createAPIEndPoint("appointment/create").create(
+          payload
         );
-      } else {
-        // Add new event
+        console.log("✅ Appointment created", response.data);
         setEvents([
           ...events,
           {
-            id: events.length + 1,
-            title: eventData.title,
+            id: response.data.appointment_id || events.length + 1,
+            title: selectedPatient.name,
             start: eventData.date.format("YYYY-MM-DDTHH:mm:ss"),
             resourceId: eventData.roomId,
           },
         ]);
+        setSelectedPatient(null);
+        setEventData({
+          title: "",
+          date: dayjs(),
+          roomId: "",
+          providerId: null,
+        });
+        setEditingEventId(null);
+        setShowEventForm(false);
+      } catch (error) {
+        console.error(
+          "❌ Failed to create appointment:",
+          error.response?.data || error
+        );
       }
-
-      // Reset form
-      setEventData({ title: "", date: dayjs(), roomId: "" });
-      setEditingEventId(null);
-      setShowEventForm(false);
+    } else {
+      console.warn("Missing required appointment info");
     }
   };
 
@@ -115,7 +150,9 @@ const Calendar = () => {
     const fetchPatients = async () => {
       setLoading(true);
       try {
-        const response = await createAPIEndPointAuth("patient").fetchAll();
+        const response = await createAPIEndPointAuth(
+          `patient/get_all/${clinic_id}`
+        ).fetchAll();
         const patients = response.data.filter((patient) => !patient.error);
 
         // Remove duplicates and store full patient object
@@ -214,13 +251,13 @@ const Calendar = () => {
   };
 
   const [patientDetails, setPatientDetails] = useState({});
-  console.log(" Calendar ~ patientDetails:", patientDetails)
+  console.log(" Calendar ~ patientDetails:", patientDetails);
   const [isPatientLoading, setIsPatientLoading] = useState(false);
 
   const getPatientDetails = async () => {
     try {
       setIsPatientLoading(true);
-      const response = await createAPIEndPoint("patient").fetchById(
+      const response = await createAPIEndPointAuth(`patient`).fetchById(
         `/${selectedPatient.id}`
       );
       const patient = response.data;
@@ -374,11 +411,11 @@ const Calendar = () => {
 
       {/* Sidebar Event Form */}
       <div
-        className={`transition-all duration-500 transform  ml-1.5 absolute top-0 right-0 mt-[65px] ${
+        className={`create-appointment-form transition-all duration-500 transform  ml-1.5 absolute top-0 right-0 mt-[65px] ${
           showEventForm
             ? "translate-x-0 w-[40%] opacity-100 block z-[99]"
             : "translate-x-full w-0 opacity-0 hidden"
-        } bg-[#FAFAFA] border-l border-[#FAFAFA] shadow-md overflow-hidden`}
+        } bg-[#fff] border-l border-[#FAFAFA] shadow-md overflow-hidden`}
       >
         {showEventForm && (
           <div className="p-4 flex flex-col h-[calc(100vh-66px)]">
@@ -415,8 +452,40 @@ const Calendar = () => {
               )}
             />
 
-            {/* Room Selection */}
+            {/* Dob Selection */}
             <FormControl fullWidth size="small" sx={{ mt: 2 }}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  label="Date of Birth"
+                  value={eventData.dob}
+                  onChange={(newValue) =>
+                    setEventData({ ...eventData, dob: newValue })
+                  }
+                  maxDate={dayjs()}
+                  slotProps={{
+                    textField: {
+                      size: "small",
+                      variant: "outlined",
+                    },
+                  }}
+                />
+              </LocalizationProvider>
+            </FormControl>
+
+            <TextField
+              fullWidth
+              size="small"
+              type="tel"
+              label="Phone"
+              placeholder="Enter phone"
+              value={eventData.phone}
+              onChange={(e) =>
+                setEventData({ ...eventData, phone: e.target.value })
+              }
+              sx={{ my: 2 }}
+            />
+
+            <FormControl fullWidth size="small" sx={{ mb: 2 }}>
               <InputLabel>Room</InputLabel>
               <Select
                 value={eventData.roomId}
@@ -431,6 +500,41 @@ const Calendar = () => {
                   </MenuItem>
                 ))}
               </Select>
+            </FormControl>
+
+            <Autocomplete
+              size="small"
+              options={filteredProviders}
+              getOptionLabel={(option) => option.provider_name}
+              onInputChange={(event, newInputValue) =>
+                setSearchProviderTerm(newInputValue)
+              }
+              onChange={(_, newValue) =>
+                setEventData({
+                  ...eventData,
+                  providerId: newValue ? newValue.id : null,
+                })
+              }
+              loading={loadingProviders}
+              renderInput={(params) => (
+                <TextField {...params} placeholder="Search provider" />
+              )}
+            />
+
+            {/* Details */}
+            <FormControl fullWidth size="small" sx={{ mt: 2 }}>
+              <TextField
+                fullWidth
+                size="small"
+                multiline
+                rows={3}
+                label="Details"
+                placeholder="Appointment details"
+                value={eventData.details}
+                onChange={(e) =>
+                  setEventData({ ...eventData, details: e.target.value })
+                }
+              />
             </FormControl>
 
             {/* Push buttons to bottom */}

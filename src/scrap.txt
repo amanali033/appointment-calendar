@@ -263,7 +263,7 @@ const Calendar = () => {
     const fetchPatients = async () => {
       setLoading(true);
       try {
-        const response = await createAPIEndPointAuth("patient").fetchAll();
+        const response = await createAPIEndPointAuth(`patient/get_all/${clinic_id}`).fetchAll();
         const patients = response.data.filter((patient) => !patient.error);
 
         // Remove duplicates and store full patient object

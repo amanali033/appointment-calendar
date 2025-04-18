@@ -30,6 +30,7 @@ export default function NewAppointment() {
   const navigate = useNavigate();
   const userData = getUserData();
   const userId = userData?.id ?? null;
+  const clinic_id = userData?.clinic_id ?? null;
 
   const validationSchema = Yup.object({
     name: Yup.string().required("Patient name is required"),
@@ -63,7 +64,7 @@ export default function NewAppointment() {
   const fetchProviders = async () => {
     try {
       const response = await createAPIEndPointAuth(
-        "clinic_providers"
+        `clinic_providers/get_all/${clinic_id}`
       ).fetchAll();
       setProvidersData(response.data.providers); // Ensure providersData is set properly
     } catch (err) {
@@ -74,7 +75,8 @@ export default function NewAppointment() {
   const fetchLocations = async () => {
     try {
       const response = await createAPIEndPointAuth(
-        "clinic_locations"
+        // "clinic_locations"
+        `clinic_locations/get_all/${clinic_id}`
       ).fetchAll();
       setLocations(response.data.locations || []); // Ensure locations are set properly
     } catch (err) {

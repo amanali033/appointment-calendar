@@ -14,6 +14,7 @@ import Appointments from "./pages/appointments/Appointments";
 import AppointmentsView from "./pages/appointments/view/AppointmentsView";
 import Calendar from "./components/Calendar";
 import { LocationProvider } from "./contexts/LocationContext";
+import Settings from "./pages/settings/Settings";
 
 function App() {
   return (
@@ -50,6 +51,7 @@ function App() {
                       path="/appointments/add-new-appointment"
                       element={<NewAppointment />}
                     />
+                    <Route path="/settings" element={<Settings />} />
                   </Routes>
                 </DashboardLayout>
               </ProtectedRoute>

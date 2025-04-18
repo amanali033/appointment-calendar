@@ -8,10 +8,11 @@ import KeyIcon from "@mui/icons-material/Key"; // For Credentials
 
 import panaceaLogo from "../../assets/app-menu-logos/panacea-logo.png";
 import preAuthLogo from "../../assets/app-menu-logos/360-solution.png";
-import { createAPIEndPoint } from "../../config/api/api";
 import toast from "react-hot-toast";
 import { getUserData } from "../../utils";
 import { Link } from "react-router-dom";
+import { createAPIEndPointAuth } from "../../config/api/apiAuth";
+import { primaryColor } from "../../utils/common";
 
 const icons = [
   { icon: LockIcon, label: "Auth", color: "#1976d2" }, // Blue
@@ -32,9 +33,9 @@ const AppMenu = () => {
 
   const fetchUserApps = async () => {
     try {
-      const response = await createAPIEndPoint("user_dashboards/").fetchById(
-        userId
-      );
+      const response = await createAPIEndPointAuth(
+        "user_dashboards/"
+      ).fetchById(userId);
       setApps(response.data.dashboards || []);
     } catch (err) {
       console.log(err?.response?.data?.error || "Error fetching dashboards");
@@ -52,8 +53,20 @@ const AppMenu = () => {
   return (
     <Box display="flex" alignItems="center">
       {/* Apps Button */}
-      <IconButton onClick={handleClick} size="large">
-        <AppsIcon />
+      <IconButton
+        onClick={handleClick}
+        sx={{
+          backgroundColor: "#F4F4F5",
+          fontSize: "1px",
+          marginRight: 2,
+          marginLeft: 0,
+          outline: "none",
+          "&:focus": {
+            outline: "none",
+          },
+        }}
+      >
+        <AppsIcon sx={{ fontSize: "20px", color: "#707070" }} />
       </IconButton>
 
       {/* Popover Menu */}
@@ -82,7 +95,7 @@ const AppMenu = () => {
           maxWidth={344}
           overflow="hidden"
         >
-          <Grid container spacing={2} justifyContent="center">
+          <Grid container spacing={2} justifyContent="f">
             {apps && apps.length > 0 ? (
               apps.map((app, index) => (
                 <Grid item xs={6} md={4} key={index}>
@@ -91,7 +104,7 @@ const AppMenu = () => {
                     target="_blank"
                     style={{ textDecoration: "none" }}
                   >
-                    {app?.image ? (
+                    {app?.image === "image" ? (
                       <img
                         src={app.image}
                         alt={app.name}
@@ -127,6 +140,7 @@ const AppMenu = () => {
                       color="#8F9BBA"
                       fontWeight="500"
                       textTransform="capitalize"
+                      textAlign="center"
                       mt={1}
                     >
                       {app?.name || "Unknown"}
